@@ -1,3 +1,6 @@
+// Team name : I don't know
+// Team ID : 17
+// Members : 王軒 0816095、林佑庭 0816136、寸少康 0816144
 
 #include "STcpClient.h"
 #include <stdlib.h>
