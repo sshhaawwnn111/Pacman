@@ -1,5 +1,5 @@
-1
-./Sample.exe
+17
+./pacman.exe
 2
 ./Sample_2C.exe
 3
