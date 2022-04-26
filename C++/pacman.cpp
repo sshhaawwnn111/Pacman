@@ -17,7 +17,7 @@ pair<int, int> prev_pos = make_pair(-100, -100);
 pair<int, int> dir;
 int pstat = 0;
 bool prev_mine = 0;
-
+int pruning = 0;
 int reverse[4] = {1, 0, 3, 2};
 
 class Mythread
@@ -53,7 +53,6 @@ public:
         int x,y;
         x = pos.first / 25;
         y = pos.second / 25;
-		// cout << dir.first << " " << dir.second << endl;
 		if(action == 0){
 			if(vertical_wall[x][y]==0) return true;
 			else return false;
@@ -131,7 +130,6 @@ public:
 		pair<int, int> pos_cord = make_pair(cur_pos.first/25, cur_pos.second/25);
 
 		for(int i = 0; i < propsStat.size(); i++){
-
 			//pellet
 			if(pos_cord == make_pair(propsStat[i][1]/25, propsStat[i][2]/25) && propsStat[i][0] == 2){
 				reward += 10*depth;
@@ -193,7 +191,6 @@ public:
 	}
 
 	int gdfs(pair<int, int> cur_pos, int ghostStat[4][2], std::vector<std::vector<int>> propsStat, int parallel_wall[16][17], int vertical_wall[17][16], vector<pair<int, int>> gvisited, int reward, int depth){
-		
 		pair<int, int> pos;
 		int temp = 0;
 		int max_reward = 0;
@@ -206,8 +203,7 @@ public:
 				reward += 200*depth;
 				return reward;					
 			}
-		}	
-
+		}
 		if(depth == 0){
 			return reward;
 		}
@@ -237,11 +233,7 @@ public:
         x = cur_pos.first / 25;
         y = cur_pos.second / 25;
 
-		// reward += 1;
-
 		for(int i = 0; i < propsStat.size(); i++){
-			// cout << propsStat[i][0] << " " << propsStat[i][1] << " " << propsStat[i][2] << endl;
-
 			//pellet
 			int mh = (abs(x - (propsStat[i][1]/25)) + abs(y - propsStat[i][2]/25));
 			if(propsStat[i][0] == 2){
@@ -249,7 +241,6 @@ public:
 			}
 			//fruit
 			else if(propsStat[i][0] == 1){
-				// cout << "hello there hello there hello there" << endl << endl << endl;
                 if(pstat > 0){
                     reward += (50 - mh)*(7 - depth);
                 }
@@ -261,21 +252,7 @@ public:
 			else if(propsStat[i][0] == 0){
 				reward += (40 - mh)*(7 - depth);
 			}
-			// else if((abs(cur_pos.first - propsStat[i][1] ) + abs(cur_pos.second - propsStat[i][2])) <= 24 && propsStat[i][0] == 3){
-			// 	reward -= 50*depth*depth;
-			// }
-
 		}
-
-        // if(pstat > 0){
-		// 	for (int i = 0; i <4;i++){
-		// 		if(pos_cord == make_pair(ghostStat[i][0]/25, ghostStat[i][1]/25)){
-		// 			if(!((ghostStat[i][0]/25 <= 8 && ghostStat[i][0]/25 >= 7) && (ghostStat[i][1]/25 <= 8 && ghostStat[i][1]/25 >= 7))){
-		// 				reward += 200*depth;	
-		// 			}
-		// 		}
-		// 	}
-		// }
 
 		if(depth == 0){
 			return reward;
@@ -301,7 +278,6 @@ public:
 		int x,y;
         x = cur_pos.first / 25;
         y = cur_pos.second / 25;
-
 		int score = 0;
 
 		for(int i = 0; i < propsStat.size();i++){
@@ -309,7 +285,6 @@ public:
 			    score += 50 - (abs(x - (propsStat[i][1]/25)) + abs(y - propsStat[i][2]/25));
             }
 		}
-
 		return score;
 	}
 
@@ -367,14 +342,14 @@ public:
 
 		for(int i = 0; i < 4; i++){
 			if(is_back(cur_pos, ghostStat[i][0], ghostStat[i][1])){
-				if(abs(cur_pos.first/25 - ghostStat[i][0] ) + abs(cur_pos.second/25 - ghostStat[i][1] ) <= 1){
+				if(abs(cur_pos.first/25 - ghostStat[i][0] ) + abs(cur_pos.second/25 - ghostStat[i][1]) <= 1){
 					lm = 1;
 				}
 			}
 		}
 		for(int i=0; i < 3; i++){
 			if(is_back(cur_pos, otherPlayerStat[i][0], otherPlayerStat[i][1]) ){
-				if(abs(cur_pos.first/25 - otherPlayerStat[i][0] ) + abs(cur_pos.second/25 - otherPlayerStat[i][1] ) <= 1){
+				if(abs(cur_pos.first/25 - otherPlayerStat[i][0] ) + abs(cur_pos.second/25 - otherPlayerStat[i][1]) <= 1){
 					lm = 1;
 				}
 			}
@@ -393,14 +368,12 @@ public:
 					}
 				}
 			}
-			return ;
+			return;
 		}
 	}
 
 	void GetStep(int playerStat[4], int ghostStat[4][2], std::vector<std::vector<int>> propsStat,int parallel_wall[16][17], int vertical_wall[17][16], int otherPlayerStat[3][5])
 	{
-        // cout << "playerStat: " << playerStat[4] << endl;
-		// Example:
 		unsigned seed;
 		seed = (unsigned)time(NULL);
 		srand(seed);
@@ -423,7 +396,7 @@ public:
 			if(is_valid(parallel_wall, vertical_wall, cur_pos, i, dir)){
 				visited.push_back(cur_pos);
 				pos = get_pos(make_pair(playerStat[0], playerStat[1]), i);
-				reward[i] = dfs(pos, ghostStat, propsStat, parallel_wall, vertical_wall, visited, 0, 8);
+				reward[i] = dfs(pos, ghostStat, propsStat, parallel_wall, vertical_wall, visited, 0, 9 - pruning);
 				if(pstat <= 0){
                     temp2 = gdfs(pos, ghostStat, propsStat, parallel_wall, vertical_wall, gvisited, 0, 3);
 					reward[i] -= temp2;
@@ -439,10 +412,8 @@ public:
             }
         }
 
-
 		//no p neighborhood
 		vector<pair<int, int>> nvisited;
-
 		if(max < -500){
 			temp_step[0] = 4;
 		}
@@ -525,6 +496,7 @@ int main()
 			Sleep(40);
 			if (step[0] == 5)
 			{
+				pruning++;
 				std::cout << "timeout" << std::endl;
 				mythread->killed = true;
 				step[0] = 4;
